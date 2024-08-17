@@ -2,6 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Aluno from "../pages/Aluno";
 import Alunos from '../pages/Alunos';
+import Fotos from '../pages/Fotos';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import PrivateRoute from './PrivateRoute';
@@ -21,6 +22,9 @@ export default function Rotas() {
       } />
       <Route exact path="/aluno/" element={
         <Aluno />
+      } />
+      <Route exact path="/fotos/:id" element={
+        <Fotos />
       } />
 
       <Route exact path="/aluno/" element={<PrivateRoute>

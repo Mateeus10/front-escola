@@ -1,16 +1,17 @@
 import { get } from 'lodash';
 import React, { useState } from 'react';
+import { FaEdit, FaUserCircle } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { isEmail } from 'validator';
+import { isEmail, isInt } from 'validator';
 
 
 import Loading from '../../components/Loading';
 import api from '../../services/axios';
 import * as actions from '../../store/modules/auth/actions';
 import { Container } from '../../styles/GlobalStyles';
-import { Form, Title } from './styled';
+import { Form, ProfilePicture, Title } from './styled';
 
 export default function Aluno() {
   const dispatch = useDispatch();
@@ -20,6 +21,9 @@ export default function Aluno() {
   const [nome, setNome] = useState('');
   const [sobrenome, setSobrenome] = useState('');
   const [email, setEmail] = useState('');
+  const [idade, setIdade] = useState('');
+  const [foto, setFoto] = useState('');
+
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,11 +34,15 @@ export default function Aluno() {
       try {
         setIsLoading(true);
         const { data } = await api.get(`/alunos/${id}`);
+        const Foto = get(data, 'Fotos[0].url');
+
+        setFoto(Foto);
 
 
         setNome(data.nome);
         setSobrenome(data.sobrenome);
         setEmail(data.email);
+        setIdade(data.idade);
 
 
         setIsLoading(false);
@@ -69,6 +77,10 @@ export default function Aluno() {
       toast.error('E-mail inválido');
       formErrors = true;
     }
+    if (!isInt(String(idade))) {
+      toast.error('Idade precisa ser um número');
+      formErrors = true;
+    }
 
 
 
@@ -82,6 +94,7 @@ export default function Aluno() {
           nome,
           sobrenome,
           email,
+          idade,
 
         });
         toast.success('Aluno(a) editado(a) com sucesso!');
@@ -90,6 +103,7 @@ export default function Aluno() {
           nome,
           sobrenome,
           email,
+          idade
         });
         toast.success('Aluno(a) criado(a) com sucesso!');
         navigate(`/aluno/${data.id}/edit`);
@@ -117,6 +131,14 @@ export default function Aluno() {
       <Loading isLoading={isLoading} />
 
       <Title>{id ? 'Editar aluno' : 'Novo Aluno'}</Title>
+      {id && (
+        <ProfilePicture>
+          {foto ? <img src={foto} alt={nome} /> : <FaUserCircle size={180} />}
+          <Link to={`/fotos/${id}`}>
+            <FaEdit size={24} />
+          </Link>
+        </ProfilePicture>
+      )}
 
 
 
@@ -124,7 +146,7 @@ export default function Aluno() {
         <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome" />
         <input type="text" value={sobrenome} onChange={(e) => setSobrenome(e.target.value)} placeholder="Sobrenome" />
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-
+        <input type="number" value={idade} onChange={(e) => setIdade(e.target.value)} placeholder="Sua Idade" />
 
         <button type="submit">Enviar</button>
       </Form>
